@@ -27,8 +27,10 @@ public class Main {
     public static void main(String[] args) {
         try {
             final HttpServer server = startServer();
-            System.out.println(String.format("Jersey app started with WADL available at "
-                    + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
+            System.out.println(String.format("Jersey app started! Test it out via:\n"
+                    + "-> Metadata: %sapi/v1\n"
+                    + "-> WADL: %sapi/v1/application.wadl\n"
+                    + "Hit enter to stop it...", BASE_URI, BASE_URI));
             System.in.read();
             server.shutdownNow();
         } catch (IOException ex) {
