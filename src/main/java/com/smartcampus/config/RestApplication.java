@@ -13,7 +13,7 @@ public class RestApplication extends ResourceConfig {
         packages("com.smartcampus.resource", "com.smartcampus.exception.mapper", "com.smartcampus.filter");
         register(DiscoveryResource.class);
         register(RoomResource.class);
-        register(SensorResource.class);
+        register(SensorResource.class);        
         // Do not register SensorReadingResource directly as it is a sub-resource locator spawned by SensorResource
         
         register(GlobalExceptionMapper.class);

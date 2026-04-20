@@ -21,7 +21,7 @@ public class SensorResource {
     private DataStore dataStore = DataStore.getInstance();
 
     @POST
-    public Response createSensor(Sensor sensor) {
+    public Response createSensor(Sensor sensor, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
         String roomId = sensor.getRoomId();
         if (roomId == null || !dataStore.getRooms().containsKey(roomId)) {
             throw new LinkedResourceNotFoundException("Room with ID " + roomId + " does not exist.");
@@ -37,7 +37,8 @@ public class SensorResource {
         Room room = dataStore.getRooms().get(roomId);
         room.getSensorIds().add(sensor.getId());
 
-        return Response.status(Response.Status.CREATED).entity(sensor).build();
+        java.net.URI location = uriInfo.getAbsolutePathBuilder().path(sensor.getId()).build();
+        return Response.created(location).entity(sensor).build();
     }
 
     @GET

@@ -24,12 +24,13 @@ public class RoomResource {
     }
 
     @POST
-    public Response createRoom(Room room) {
+    public Response createRoom(Room room, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
         if (room.getId() == null || room.getId().isEmpty()) {
             room.setId(UUID.randomUUID().toString());
         }
         dataStore.getRooms().put(room.getId(), room);
-        return Response.status(Response.Status.CREATED).entity(room).build();
+        java.net.URI location = uriInfo.getAbsolutePathBuilder().path(room.getId()).build();
+        return Response.created(location).entity(room).build();
     }
 
     @GET
