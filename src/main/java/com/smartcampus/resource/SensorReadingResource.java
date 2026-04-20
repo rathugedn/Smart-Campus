@@ -9,7 +9,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +30,7 @@ public class SensorReadingResource {
             throw new LinkedResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
         }
         
-        List<SensorReading> readings = dataStore.getSensorReadings().getOrDefault(sensorId, new ArrayList<>());
+        List<SensorReading> readings = dataStore.getSensorReadings().getOrDefault(sensorId, new CopyOnWriteArrayList<>());
         return Response.ok(readings).build();
     }
 
@@ -55,7 +55,7 @@ public class SensorReadingResource {
         // Side effect: update sensor's current value
         sensor.setCurrentValue(reading.getValue());
 
-        dataStore.getSensorReadings().putIfAbsent(sensorId, new ArrayList<>());
+        dataStore.getSensorReadings().putIfAbsent(sensorId, new CopyOnWriteArrayList<>());
         dataStore.getSensorReadings().get(sensorId).add(reading);
 
         return Response.status(Response.Status.CREATED).entity(reading).build();
