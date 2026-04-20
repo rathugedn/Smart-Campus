@@ -1,13 +1,13 @@
 package com.smartcampus.model;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 
 public class Room {
     private String id;
     private String name;
     private int capacity;
-    private List<String> sensorIds = new ArrayList<>();
+    private List<String> sensorIds = new CopyOnWriteArrayList<>();
 
     public Room() {}
 
