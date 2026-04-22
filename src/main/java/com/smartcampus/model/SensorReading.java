@@ -1,7 +1,7 @@
 package com.smartcampus.model;
 
 public class SensorReading {
-    private String id;
+    private String id;   
     private long timestamp;
     private double value;
 
