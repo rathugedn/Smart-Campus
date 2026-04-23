@@ -11,7 +11,9 @@ import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -33,6 +35,13 @@ public class SensorResource {
      */
     @POST
     public Response createSensor(Sensor sensor, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
+        if (sensor.getId() != null && dataStore.getSensors().containsKey(sensor.getId())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Conflict");
+            error.put("message", "Sensor with ID " + sensor.getId() + " already exists.");
+            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        }
+
         String roomId = sensor.getRoomId();
         if (roomId == null || !dataStore.getRooms().containsKey(roomId)) {
             throw new LinkedResourceNotFoundException("Room with ID " + roomId + " does not exist.");
@@ -50,6 +59,21 @@ public class SensorResource {
 
         java.net.URI location = uriInfo.getAbsolutePathBuilder().path(sensor.getId()).build();
         return Response.created(location).entity(sensor).build();
+    }
+
+    /**
+     * Retrieves a specific sensor by its ID.
+     * @param sensorId The unique identifier of the sensor.
+     * @return 200 OK with the Sensor object, or 404 Not Found.
+     */
+    @GET
+    @Path("/{sensorId}")
+    public Response getSensor(@PathParam("sensorId") String sensorId) {
+        Sensor sensor = dataStore.getSensors().get(sensorId);
+        if (sensor == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        return Response.ok(sensor).build();
     }
 
     /**
