@@ -60,9 +60,9 @@ public class SensorReadingResource {
             throw new ResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
         }
 
-        if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
+        if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus()) || "OFFLINE".equalsIgnoreCase(sensor.getStatus())) {
             throw new SensorUnavailableException(
-                    "Sensor " + sensorId + " is currently in MAINTENANCE and cannot accept readings.");
+                    "Sensor " + sensorId + " is currently " + sensor.getStatus() + " and cannot accept readings.");
         }
 
         if (reading.getId() == null || reading.getId().isEmpty()) {
