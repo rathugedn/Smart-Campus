@@ -1,6 +1,7 @@
 package com.smartcampus.resource;
 
 import com.smartcampus.exception.LinkedResourceNotFoundException;
+import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.model.Room;
 import com.smartcampus.model.Sensor;
 import com.smartcampus.store.DataStore;
@@ -13,6 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Resource class for managing Sensors in the Smart Campus system.
+ * Handles sensor registration, retrieval, and sub-resource delegation for readings.
+ */
 @Path("/sensors")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -20,6 +25,12 @@ public class SensorResource {
 
     private DataStore dataStore = DataStore.getInstance();
 
+    /**
+     * Registers a new sensor and links it to a room.
+     * @param sensor The Sensor object to create. Must include a valid roomId.
+     * @param uriInfo Context for building the location URI.
+     * @return 201 Created if successful, or 422 Unprocessable Entity if roomId is invalid.
+     */
     @POST
     public Response createSensor(Sensor sensor, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
         String roomId = sensor.getRoomId();
@@ -41,6 +52,11 @@ public class SensorResource {
         return Response.created(location).entity(sensor).build();
     }
 
+    /**
+     * Retrieves sensors, optionally filtered by type.
+     * @param type (Optional) The type of sensor to filter by (e.g., "Temperature").
+     * @return 200 OK with the list of sensors.
+     */
     @GET
     public Response getSensors(@QueryParam("type") String type) {
         Collection<Sensor> allSensors = dataStore.getSensors().values();
@@ -58,9 +74,17 @@ public class SensorResource {
         return Response.ok(allSensors).build();
     }
 
-    // Sub-Resource Locator Pattern
+    /**
+     * Sub-resource locator for sensor readings.
+     * Delegates requests for /sensors/{id}/readings to SensorReadingResource.
+     * @param sensorId The unique identifier of the sensor.
+     * @return A new instance of SensorReadingResource.
+     */
     @Path("/{sensorId}/readings")
     public SensorReadingResource getSensorReadingResource(@PathParam("sensorId") String sensorId) {
+        if (!dataStore.getSensors().containsKey(sensorId)) {
+            throw new ResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
+        }
         return new SensorReadingResource(sensorId);
     }
 }
