@@ -8,6 +8,8 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -39,6 +41,13 @@ public class RoomResource {
      */
     @POST
     public Response createRoom(Room room, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
+        if (room.getId() != null && dataStore.getRooms().containsKey(room.getId())) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", "Conflict");
+            error.put("message", "Room with ID " + room.getId() + " already exists.");
+            return Response.status(Response.Status.CONFLICT).entity(error).build();
+        }
+
         if (room.getId() == null || room.getId().isEmpty()) {
             room.setId(UUID.randomUUID().toString());
         }
