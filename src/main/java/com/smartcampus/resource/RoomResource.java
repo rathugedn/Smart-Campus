@@ -10,6 +10,10 @@ import jakarta.ws.rs.core.Response;
 import java.util.Collection;
 import java.util.UUID;
 
+/**
+ * Resource class for managing Rooms in the Smart Campus system.
+ * Provides endpoints for creating, retrieving, and deleting rooms.
+ */
 @Path("/rooms")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -17,12 +21,22 @@ public class RoomResource {
 
     private DataStore dataStore = DataStore.getInstance();
 
+    /**
+     * Retrieves all rooms currently stored in the system.
+     * @return 200 OK with a list of all Room objects.
+     */
     @GET
     public Response getAllRooms() {
         Collection<Room> rooms = dataStore.getRooms().values();
         return Response.ok(rooms).build();
     }
 
+    /**
+     * Creates a new room. If an ID is not provided, a random UUID will be generated.
+     * @param room The Room object to create.
+     * @param uriInfo Context for building the location URI of the new resource.
+     * @return 201 Created with the location of the new room and the room object itself.
+     */
     @POST
     public Response createRoom(Room room, @jakarta.ws.rs.core.Context jakarta.ws.rs.core.UriInfo uriInfo) {
         if (room.getId() == null || room.getId().isEmpty()) {
@@ -43,6 +57,13 @@ public class RoomResource {
         return Response.ok(room).build();
     }
 
+    /**
+     * Deletes a specific room by its ID.
+     * Business Logic: A room cannot be deleted if it still has sensors assigned to it.
+     * @param roomId The unique identifier of the room to delete.
+     * @return 204 No Content if successful, 404 Not Found if the room doesn't exist, 
+     *         or 409 Conflict if the room has active sensors.
+     */
     @DELETE
     @Path("/{roomId}")
     public Response deleteRoom(@PathParam("roomId") String roomId) {
