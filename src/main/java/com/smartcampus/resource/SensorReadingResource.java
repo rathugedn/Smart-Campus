@@ -30,6 +30,7 @@ public class SensorReadingResource {
 
     /**
      * Retrieves all readings for the associated sensor.
+     * 
      * @return 200 OK with the list of readings.
      */
     @GET
@@ -45,9 +46,10 @@ public class SensorReadingResource {
 
     /**
      * Adds a new reading for the sensor.
-     * Business Logic: 
+     * Business Logic:
      * 1. Updates the sensor's currentValue.
      * 2. Prevents readings if sensor status is "MAINTENANCE".
+     * 
      * @param reading The SensorReading object to add.
      * @return 201 Created if successful, 403 Forbidden if sensor is unavailable.
      */
