@@ -18,6 +18,15 @@ public class DataStore {
     private DataStore() {
         Room room1 = new Room("LIB-301", "Library Quiet Study", 50);
         rooms.put(room1.getId(), room1);
+
+        Sensor sensor1 = new Sensor("TEMP-001", "Temperature", "ACTIVE", 22.5, "LIB-301");
+        sensors.put(sensor1.getId(), sensor1);
+        room1.getSensorIds().add(sensor1.getId());
+
+        // Initialize readings list for the default sensor
+        java.util.List<SensorReading> readings = new java.util.concurrent.CopyOnWriteArrayList<>();
+        readings.add(new SensorReading("READ-101", System.currentTimeMillis(), 22.5));
+        sensorReadings.put(sensor1.getId(), readings);
     }
 
     public static DataStore getInstance() {

@@ -1,6 +1,6 @@
 package com.smartcampus.resource;
 
-import com.smartcampus.exception.LinkedResourceNotFoundException;
+import com.smartcampus.exception.ResourceNotFoundException;
 import com.smartcampus.exception.SensorUnavailableException;
 import com.smartcampus.model.Sensor;
 import com.smartcampus.model.SensorReading;
@@ -13,6 +13,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Sub-resource for managing readings of a specific sensor.
+ * Handles adding new readings and retrieving the history of readings.
+ */
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class SensorReadingResource {
@@ -24,25 +28,41 @@ public class SensorReadingResource {
         this.sensorId = sensorId;
     }
 
+    /**
+     * Retrieves all readings for the associated sensor.
+     * 
+     * @return 200 OK with the list of readings.
+     */
     @GET
     public Response getReadings() {
         if (!dataStore.getSensors().containsKey(sensorId)) {
-            throw new LinkedResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
+            throw new ResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
         }
-        
-        List<SensorReading> readings = dataStore.getSensorReadings().getOrDefault(sensorId, new CopyOnWriteArrayList<>());
+
+        List<SensorReading> readings = dataStore.getSensorReadings().getOrDefault(sensorId,
+                new CopyOnWriteArrayList<>());
         return Response.ok(readings).build();
     }
 
+    /**
+     * Adds a new reading for the sensor.
+     * Business Logic:
+     * 1. Updates the sensor's currentValue.
+     * 2. Prevents readings if sensor status is "MAINTENANCE".
+     * 
+     * @param reading The SensorReading object to add.
+     * @return 201 Created if successful, 403 Forbidden if sensor is unavailable.
+     */
     @POST
     public Response addReading(SensorReading reading) {
         Sensor sensor = dataStore.getSensors().get(sensorId);
         if (sensor == null) {
-            throw new LinkedResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
+            throw new ResourceNotFoundException("Sensor with ID " + sensorId + " does not exist.");
         }
 
-        if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus())) {
-            throw new SensorUnavailableException("Sensor " + sensorId + " is currently in MAINTENANCE and cannot accept readings.");
+        if ("MAINTENANCE".equalsIgnoreCase(sensor.getStatus()) || "OFFLINE".equalsIgnoreCase(sensor.getStatus())) {
+            throw new SensorUnavailableException(
+                    "Sensor " + sensorId + " is currently " + sensor.getStatus() + " and cannot accept readings.");
         }
 
         if (reading.getId() == null || reading.getId().isEmpty()) {
